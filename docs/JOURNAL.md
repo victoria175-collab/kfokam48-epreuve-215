@@ -16,11 +16,11 @@
 
 ## Étape 2 — Première version
 
-**Fait :**
+**Fait :** toutes les stories Must livrées (issues #1 à #11 et #18 à #22), une branche et une pull request par lot de travail, empilées dans l'ordre. Backend : migrations Flyway V1/V2 conformes à D2 avec séquences repositionnées, gestion centralisée des erreurs { code, message }, ouverture de session avec code de 6 caractères (RG22, RG1), listes des écrans (EF8), présences (RG1 à RG3, RG21), dépôt d'exercice (RG6 à RG8, RG21), affectation automatique du relecteur (RG10 à RG12, Z2, reprise à chaque nouvelle présence), relectures (RG13 à RG16, Z11, note décimale refusée sans troncature), tableau par agrégation SQL sans N+1 (RG17, RG18, ENF3). Frontend React : couche api/ unique, trois écrans, erreurs affichées telles que renvoyées, moyenne jamais recalculée (F3). Démarrage en trois commandes Docker documenté. 41 tests passent via ./mvnw verify sur poste vierge (H2 migrée par les mêmes scripts).
 
-**Bloqué :**
+**Bloqué :** le jeton GitHub fin-grain n'avait pas la permission « Pull requests » : création impossible via l'API, PR créées et fusionnées à la main à partir des liens fournis. Environ 40 min sur la collision d'identifiants après les insertions explicites de V2 (23505), corrigée en repositionnant les séquences, et une heure sur la validation stricte de la note entière (Jackson tronquait 12.5 en 12) : résolue par lecture JSON brute côté contrôleur, comme prévu en section 8 du cahier des charges.
 
-**IA :**
+**IA :** l'IA a écrit le code et les tests, l'historique a été vérifié commit par commit (un fichier de test était glissé dans le mauvais commit, il a été déplacé dans la bonne branche avant fusion) ; le jeu de données du test d'affectation a été corrigé après vérification manuelle des données de démonstration ; le contrat a été relu face aux réponses HTTP réelles (NOTE_INVALIDE plutôt que CORPS_JSON_INVALIDE pour une note décimale).
 
 ---
 

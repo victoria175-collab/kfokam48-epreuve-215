@@ -1,0 +1,207 @@
+:root {
+  --fond: #f5f6f8;
+  --carte: #ffffff;
+  --texte: #24292f;
+  --texte-doux: #57606a;
+  --bordure: #d8dee4;
+  --accent: #2f6feb;
+  --accent-doux: #dbeafe;
+  --ok: #1a7f37;
+  --avertissement: #9a6700;
+  --erreur: #cf222e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--fond);
+  color: var(--texte);
+  line-height: 1.5;
+}
+
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.entete {
+  margin-bottom: 1.25rem;
+}
+
+.entete h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.sous-titre {
+  margin: 0.15rem 0 0.75rem;
+  color: var(--texte-doux);
+  font-size: 0.9rem;
+}
+
+.onglets {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.onglets button {
+  border: 1px solid var(--bordure);
+  background: var(--carte);
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.onglets button.actif {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.carte {
+  background: var(--carte);
+  border: 1px solid var(--bordure);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.carte h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+}
+
+label {
+  display: block;
+  margin: 0.6rem 0 0.2rem;
+  font-size: 0.9rem;
+  color: var(--texte-doux);
+}
+
+select,
+input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--bordure);
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #fff;
+}
+
+button.principal {
+  margin-top: 0.8rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+button.principal:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.message {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.92rem;
+}
+
+.message.erreur {
+  background: #ffebe9;
+  color: var(--erreur);
+  border: 1px solid #ffc1bd;
+}
+
+.message.succes {
+  background: #dafbe1;
+  color: var(--ok);
+  border: 1px solid #a6e8b8;
+}
+
+.code-presence {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  font-family: 'Consolas', monospace;
+  background: var(--accent-doux);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem 0.5rem 1rem;
+  display: inline-block;
+  margin-top: 0.4rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid var(--bordure);
+}
+
+th {
+  color: var(--texte-doux);
+  font-weight: 600;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  border: 1px solid var(--bordure);
+  color: var(--texte-doux);
+}
+
+.badge.attente {
+  background: #fff8c5;
+  border-color: #d4a72c66;
+  color: var(--avertissement);
+}
+
+.badge.ok {
+  background: #dafbe1;
+  border-color: #a6e8b866;
+  color: var(--ok);
+}
+
+.chargement {
+  color: var(--texte-doux);
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+@media (max-width: 640px) {
+  .app {
+    padding: 0.6rem;
+  }
+
+  .carte {
+    padding: 0.75rem;
+  }
+
+  table {
+    font-size: 0.85rem;
+  }
+
+  th,
+  td {
+    padding: 0.35rem 0.3rem;
+  }
+}
