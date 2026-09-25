@@ -15,7 +15,7 @@
 | | |
 |---|---|
 | Dépôt (public) | `https://github.com/victoria175-collab/kfokam48-epreuve-215` |
-| Commit final — hash complet, 40 caractères | `48ac82a0626d4f8c409e067170dfe8cda59300dd` (provisoire : dernier commit poussé sur `main` au moment de la rédaction.) |
+| Commit final — hash complet, 40 caractères | `c80d45c90d6f586fa2163c9c05d0fed8a14aebc6` (merge de la PR #38, version finale v1.0 incluant le jalon `[JALON] v1.0`). Seul le présent fichier est commité après ce hash |
 | Branche | `main` |
 
 ## Épreuve Git — étape 5
