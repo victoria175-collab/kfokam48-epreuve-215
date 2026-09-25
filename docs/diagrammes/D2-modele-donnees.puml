@@ -1,0 +1,96 @@
+@startuml D2-modele-donnees
+' D2 - Modèle de données
+' Ce diagramme décrit exactement les tables créées par les migrations Flyway
+' (backend/src/main/resources/db/migration). Toute évolution du schéma
+' passe par une nouvelle migration ET par la mise à jour de ce fichier.
+title D2 - Modèle de données (tables, colonnes, cardinalités)
+
+hide circle
+hide methods
+skinparam linetype ortho
+skinparam shadowing false
+
+entity "promotion" as promotion {
+  * id : BIGINT <<PK, identité>>
+  --
+  * nom : VARCHAR(100) <<UNIQUE>>
+}
+
+entity "etudiant" as etudiant {
+  * id : BIGINT <<PK, identité>>
+  --
+  * nom : VARCHAR(150)
+  * promotion_id : BIGINT <<FK promotion>>
+}
+
+entity "session_cours" as session_cours {
+  * id : BIGINT <<PK, identité>>
+  --
+  * titre : VARCHAR(200)
+  * promotion_id : BIGINT <<FK promotion>>
+  * code : VARCHAR(6) <<UNIQUE>> (RG22)
+  * ouverture_at : TIMESTAMP WITH TIME ZONE
+  * expiration_at : TIMESTAMP WITH TIME ZONE (RG1)
+    cloturee_at : TIMESTAMP WITH TIME ZONE (RG19, NULL si ouverte)
+}
+
+entity "presence" as presence {
+  * id : BIGINT <<PK, identité>>
+  --
+  * session_id : BIGINT <<FK session_cours>>
+  * etudiant_id : BIGINT <<FK etudiant>>
+  * source : VARCHAR(10) CHECK IN ('ETUDIANT','FORMATEUR') (RG5)
+  * marquee_at : TIMESTAMP WITH TIME ZONE
+  ..
+  UNIQUE (session_id, etudiant_id) (RG3)
+}
+
+entity "exercice" as exercice {
+  * id : BIGINT <<PK, identité>>
+  --
+  * session_id : BIGINT <<FK session_cours>>
+  * etudiant_id : BIGINT <<FK etudiant>> (auteur)
+  * lien : VARCHAR(2048) (RG7)
+  * statut : VARCHAR(25) CHECK IN ('DEPOSE','EN_ATTENTE_RELECTURE','RELU') (RG20)
+  * depose_at : TIMESTAMP WITH TIME ZONE
+    modifie_at : TIMESTAMP WITH TIME ZONE (RG9)
+  ..
+  UNIQUE (session_id, etudiant_id) (RG6)
+}
+
+entity "relecture" as relecture {
+  * id : BIGINT <<PK, identité>>
+  --
+  * exercice_id : BIGINT <<FK exercice, UNIQUE>> (RG10)
+  * relecteur_id : BIGINT <<FK etudiant>> (RG11, RG12)
+    note : SMALLINT CHECK (note BETWEEN 0 AND 20) (RG13, NULL tant que non rendue)
+    commentaire : TEXT (NULL tant que non rendue)
+  * affectee_at : TIMESTAMP WITH TIME ZONE
+    rendue_at : TIMESTAMP WITH TIME ZONE (RG14, NULL tant que non rendue)
+}
+
+entity "tentative_code" as tentative_code {
+  * etudiant_id : BIGINT <<PK, FK etudiant>>
+  --
+  * echecs_consecutifs : INTEGER (RG4)
+    bloque_jusqu_a : TIMESTAMP WITH TIME ZONE (RG4, NULL si non bloqué)
+}
+
+promotion      ||--o{ etudiant       : regroupe
+promotion      ||--o{ session_cours  : organise
+session_cours  ||--o{ presence       : enregistre
+etudiant       ||--o{ presence       : marque
+session_cours  ||--o{ exercice       : reçoit
+etudiant       ||--o{ exercice       : dépose
+exercice       ||--o| relecture      : "est relu par (0..1)"
+etudiant       ||--o{ relecture      : relit
+etudiant       ||--o| tentative_code : "compteur (0..1)"
+
+note bottom of relecture
+  RG12 (relecteur_id <> auteur de l'exercice) et
+  RG11 (relecteur présent à la session) portent sur
+  plusieurs tables : ils sont garantis par le service
+  d'affectation et couverts par des tests, pas par
+  une contrainte CHECK.
+end note
+@enduml

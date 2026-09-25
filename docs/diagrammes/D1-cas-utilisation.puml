@@ -1,0 +1,72 @@
+@startuml D1-cas-utilisation
+' D1 - Cas d'utilisation
+' Sources : CAHIER_DES_CHARGES.md, sections 2 et 4 (EF1 à EF14)
+title D1 - Cas d'utilisation - Présences et relectures KFOKAM48
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+actor "Formateur" as FOR
+actor "Étudiant" as ETU
+actor "Relecteur" as REL
+actor "Système\n(horloge, tirage)" as SYS
+
+' Le relecteur est un étudiant dans un rôle donné (section 2)
+ETU <|-- REL
+
+rectangle "Application KFOKAM48" {
+  usecase "Ouvrir une session\net obtenir le code (EF1)" as UC1
+  usecase "Ajouter une présence\nà la main (EF9)" as UC9
+  usecase "Clôturer une session (EF10)" as UC10
+  usecase "Consulter le tableau\nde la promotion (EF7)" as UC7
+  usecase "Voir la présence\npar session (EF14)" as UC14
+
+  usecase "Choisir son nom\ndans une liste (EF8)" as UC8
+  usecase "Marquer sa présence\navec le code (EF2)" as UC2
+  usecase "Déposer le lien\nde son exercice (EF3)" as UC3
+  usecase "Remplacer le lien (EF11)" as UC11
+  usecase "Consulter sa note\net son commentaire (EF12)" as UC12
+
+  usecase "Consulter ses relectures\nà rendre (EF5)" as UC5
+  usecase "Rendre une note\net un commentaire (EF6)" as UC6
+
+  usecase "Affecter un relecteur\nau hasard (EF4)" as UC4
+  usecase "Bloquer après cinq\ncodes erronés (EF13)" as UC13
+}
+
+FOR --> UC1
+FOR --> UC9
+FOR --> UC10
+FOR --> UC7
+FOR --> UC14
+
+ETU --> UC8
+ETU --> UC2
+ETU --> UC3
+ETU --> UC11
+ETU --> UC12
+
+REL --> UC5
+REL --> UC6
+
+UC2 ..> UC13 : <<include>>
+UC3 ..> UC4 : <<include>>
+UC2 ..> UC4 : <<extend>>\nexercices non affectés (Z2)
+UC9 ..> UC4 : <<extend>>\nexercices non affectés (Z2)
+UC14 ..> UC7 : <<extend>>
+
+UC4 <-- SYS
+UC13 <-- SYS
+
+note bottom of UC6
+  RG12 : jamais sur son propre exercice
+  RG13 : note entière de 0 à 20
+  RG14 : définitive une fois rendue
+end note
+
+note bottom of UC2
+  RG1 : code expiré 15 min après l'ouverture
+  RG3 : une seule présence par session
+end note
+@enduml

@@ -1,0 +1,80 @@
+@startuml D3-sequence-marquer-presence
+' D3 - Séquence : marquer sa présence (EF2)
+' Codes HTTP et codes d'erreur alignés sur api/contrat.yaml, opération POST /api/presences.
+' L'ordre des contrôles est celui qu'applique PresenceService.
+title D3 - Séquence : marquer sa présence (POST /api/presences)
+
+skinparam shadowing false
+autonumber
+
+actor "Étudiant" as E
+participant "Front React\n(EcranEtudiant)" as F
+participant "Couche API front\n(api/presences.js)" as A
+participant "PresenceController" as C
+participant "PresenceService" as S
+participant "TentativeCodeRepository" as T
+participant "SessionRepository" as SR
+participant "PresenceRepository" as PR
+participant "AffectationService" as AF
+database "PostgreSQL" as DB
+
+E -> F : choisit son nom, saisit le code
+F -> A : marquerPresence(code, etudiantId)
+A -> C : POST /api/presences\n{ code, etudiantId }
+
+alt corps invalide (code ou etudiantId absent)
+  C --> A : 400 { code: "REQUETE_INVALIDE", message }
+else corps valide
+  C -> S : marquer(code, etudiantId)
+  S -> DB : étudiant existe ?
+  alt étudiant inconnu
+    S --> C : EtudiantInconnuException
+    C --> A : 400 { code: "ETUDIANT_INCONNU", message }
+  else étudiant connu
+    S -> T : lire le compteur de l'étudiant
+    alt bloqué jusqu'à une date future (RG4)
+      S --> C : TropDeTentativesException
+      C --> A : 429 { code: "TROP_DE_TENTATIVES", message }
+    else non bloqué
+      S -> SR : findByCode(code)
+      SR -> DB : SELECT session_cours WHERE code = ?
+      alt code inconnu, ou session d'une autre promotion (RG21)
+        S -> T : échecs + 1 ; si échecs = 5 alors\nbloque_jusqu_a = maintenant + 2 min (RG4)
+        S --> C : CodeInconnuException
+        C --> A : 400 { code: "CODE_INCONNU", message }
+      else session trouvée
+        S -> PR : existsBySessionAndEtudiant
+        PR -> DB : SELECT presence
+        alt étudiant déjà présent (RG3)
+          S --> C : DejaPresentException
+          C --> A : 409 { code: "DEJA_PRESENT", message }
+        else maintenant >= expiration_at, ou session clôturée (RG1, RG2)
+          S --> C : CodeExpireException
+          C --> A : 410 { code: "CODE_EXPIRE", message }
+        else cas nominal
+          S -> PR : save(presence, source = ETUDIANT)
+          PR -> DB : INSERT presence
+          S -> T : remettre le compteur à zéro (RG4)
+          S -> AF : affecterExercicesEnAttente(session) (Z2, RG11)
+          AF -> DB : exercices DEPOSE de la session :\ntirage d'un relecteur présent, jamais l'auteur (RG12)
+          S --> C : PresenceDto
+          C --> A : 201 { id, sessionId, etudiantId, source: "ETUDIANT" }
+        end
+      end
+    end
+  end
+end
+
+alt statut 201
+  A --> F : présence enregistrée
+  F --> E : message de confirmation
+else statut 4xx
+  A --> F : erreur { code, message }
+  F --> E : affiche le message renvoyé par l'API\n(aucune règle recalculée côté front, F3)
+end
+
+note over C, S
+  Toute exception est traduite par le @RestControllerAdvice
+  au format imposé { code, message }. Jamais de stack trace (B4).
+end note
+@enduml

@@ -1,0 +1,42 @@
+@startuml D4-etats-exercice
+' D4 - États-transitions du cycle de vie d'un exercice (bonus)
+' Valeurs de la colonne exercice.statut (D2) : DEPOSE, EN_ATTENTE_RELECTURE, RELU.
+' Règles de gestion : CAHIER_DES_CHARGES.md, section 6.
+title D4 - Cycle de vie d'un exercice
+
+skinparam shadowing false
+hide empty description
+
+state "DEPOSE\n(déposé, pas encore de relecteur)" as DEPOSE
+state "EN_ATTENTE_RELECTURE\n(relecteur affecté, note non rendue)" as EN_ATTENTE
+state "RELU\n(note et commentaire rendus)" as RELU
+
+[*] --> DEPOSE : POST /api/exercices\n[session non clôturée, lien valide,\npas de dépôt antérieur] (RG6, RG7, RG8)
+
+DEPOSE --> EN_ATTENTE : affectation d'un relecteur\n[au moins un autre étudiant présent]\n(RG10, RG11, RG12)
+DEPOSE --> DEPOSE : PUT /api/exercices/{id}\nremplacement du lien (RG9)
+DEPOSE --> DEPOSE : dépôt ou nouvelle présence\n[aucun relecteur disponible] (Z2)
+
+EN_ATTENTE --> EN_ATTENTE : PUT /api/exercices/{id}\nremplacement du lien (RG9, Z5)
+EN_ATTENTE --> RELU : POST /api/relectures/{id}\n[note entière 0..20, session non clôturée]\n(RG13, RG15)
+
+RELU --> [*]
+
+note right of EN_ATTENTE
+  Clôture de la session (RG19) : l'exercice reste
+  EN_ATTENTE_RELECTURE et reste visible comme tel
+  dans le tableau du formateur (Q11, RG18).
+  Aucune transition n'est plus possible.
+end note
+
+note right of RELU
+  État final : la relecture est définitive (RG14, C1).
+  Le lien n'est plus modifiable (RG9).
+  Aucun retour arrière (RG20).
+end note
+
+note left of DEPOSE
+  Clôture de la session : un exercice encore DEPOSE
+  le reste définitivement (RG19).
+end note
+@enduml

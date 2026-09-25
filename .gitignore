@@ -34,3 +34,6 @@ application-local.yml
 *.swp
 .DS_Store
 Thumbs.db
+
+# --- Dossier de modeles fourni avec le sujet (hors depot) ---
+modeles/
