@@ -49,6 +49,12 @@ public class RelectureService {
     /** EF6 : rendu de la note et du commentaire, definitif (RG14). */
     @Transactional
     public Relecture rendre(long relectureId, Integer note, String commentaire, Long etudiantDeclencheur) {
+        // RG13 : la note est un entier 0..20.
+        if (note == null || note < 0 || note > 20) {
+            throw new RegleMetierException("NOTE_INVALIDE", HttpStatus.BAD_REQUEST,
+                    "La note doit être un entier entre 0 et 20.");
+        }
+
         Relecture relecture = relectures.findById(relectureId)
                 .orElseThrow(() -> new RegleMetierException("RELECTURE_INCONNUE", HttpStatus.NOT_FOUND,
                         "La relecture demandée n'existe pas."));
@@ -77,14 +83,7 @@ public class RelectureService {
                     "La session est clôturée : les relectures sont fermées.");
         }
 
-        // RG13 : la note est un entier 0..20 (la validation Bean a dejà filtre
-        // hors bornes ; on garde le controle pour les appels directs).
-        if (note == null || note < 0 || note > 20) {
-            throw new RegleMetierException("NOTE_INVALIDE", HttpStatus.BAD_REQUEST,
-                    "La note doit être un entier entre 0 et 20.");
-        }
-
-        relecture.setNote(note);
+        relecture.setNote(note.shortValue());
         relecture.setCommentaire(commentaire);
         relecture.setRendueAt(OffsetDateTime.now(clock));
 
