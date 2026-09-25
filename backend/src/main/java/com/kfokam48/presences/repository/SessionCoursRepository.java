@@ -1,9 +1,12 @@
 package com.kfokam48.presences.repository;
 
 import com.kfokam48.presences.domain.SessionCours;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SessionCoursRepository extends JpaRepository<SessionCours, Long> {
 
     boolean existsByCode(String code);
+
+    List<SessionCours> findByPromotionIdOrderByOuvertureAtDesc(Long promotionId);
 }
