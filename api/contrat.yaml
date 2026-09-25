@@ -398,10 +398,13 @@ paths:
 
   /api/etudiants/{id}/exercices:
     get:
-      summary: Exercices déposés par un étudiant, avec note et commentaire reçus (EF12, RG16)
+      summary: Exercices déposés par un étudiant, avec note retenue et commentaire reçus (EF12, RG16)
       description: |
-        Statut, note et commentaire sont fournis ; l'identité du relecteur
+        Statut, note et commentaire sont fournis ; l'identité des relecteurs
         n'apparaît jamais (RG16, décision Z14).
+        Depuis l'étape 3 (changement de besoin) : chaque exercice est relu par
+        deux pairs, la note retenue est la moyenne des deux ; si une seule
+        relecture est rendue, sa note est fournie avec noteProvisoire = true.
       parameters:
         - name: id
           in: path
@@ -416,14 +419,17 @@ paths:
                 type: array
                 items:
                   type: object
-                  required: [id, sessionId, sessionTitre, statut, lien, note, commentaire]
+                  required: [id, sessionId, sessionTitre, statut, lien, note, noteProvisoire, commentaire]
                   properties:
                     id: { type: integer, format: int64 }
                     sessionId: { type: integer, format: int64 }
                     sessionTitre: { type: string }
                     statut: { type: string }
                     lien: { type: string }
-                    note: { type: integer, nullable: true }
+                    note: { type: number, nullable: true }
+                    noteProvisoire:
+                      type: boolean
+                      description: Vrai quand une seule des deux relectures est rendue
                     commentaire: { type: string, nullable: true }
         "404": { $ref: "#/components/responses/Erreur" }   # ETUDIANT_INCONNU
 
