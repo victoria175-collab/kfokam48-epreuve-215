@@ -16,4 +16,13 @@ public interface RelectureRepository extends JpaRepository<Relecture, Long> {
     List<Relecture> findByExerciceSessionId(Long sessionId);
 
     boolean existsByExerciceId(Long exerciceId);
+
+    /** Nombre d'affectations déjà posées pour l'exercice (0, 1 ou 2 — issue #34). */
+    long countByExerciceId(Long exerciceId);
+
+    /** Toutes les affectations de l'exercice (issue #34). */
+    List<Relecture> findByExerciceId(Long exerciceId);
+
+    /** Relectures rendues de l'exercice (note provisoire vs définitive, issue #34). */
+    List<Relecture> findByExerciceIdAndRendueAtIsNotNull(Long exerciceId);
 }
