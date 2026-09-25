@@ -24,7 +24,7 @@ docker compose up --build frontend
 2. La deuxième construit et démarre le backend Spring Boot : le schéma et les
    données de démonstration sont créés par les migrations Flyway au démarrage.
 3. La troisième construit et démarre le frontend (nginx) : ouvrez
-   http://localhost:3000
+   http://localhost:3001
 
 À la fin, `Ctrl+C` arrête les services lancés au premier plan ; `docker compose down`
 arrête tout (ajoutez `-v` pour repartir d'une base vide).
