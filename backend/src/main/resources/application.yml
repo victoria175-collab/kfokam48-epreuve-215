@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:presences}
+    username: ${DB_USER:presences}
+    password: ${DB_PASSWORD:presences}
+  jpa:
+    hibernate:
+      # Le schema est entièrement versionne par Flyway (B5) : Hibernate ne fait
+      # que valider le mapping contre les migrations, jamais rien créer.
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
