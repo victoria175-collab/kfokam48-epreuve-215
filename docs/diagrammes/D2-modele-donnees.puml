@@ -58,10 +58,15 @@ entity "exercice" as exercice {
   UNIQUE (session_id, etudiant_id) (RG6)
 }
 
+' V3 (étape 3, issue #34) : la contrainte d'unicité sur exercice_id seul (V1)
+' est remplacée par UNIQUE (exercice_id, rang) — deux relecteurs de rangs distincts.
+
 entity "relecture" as relecture {
   * id : BIGINT <<PK, identité>>
   --
-  * exercice_id : BIGINT <<FK exercice, UNIQUE>> (RG10)
+  * exercice_id : BIGINT <<FK exercice>>
+  * rang : SMALLINT CHECK (rang IN (1, 2))
+    (RG10, V3 : au plus une relecture de rang 1 et une de rang 2 par exercice)
   * relecteur_id : BIGINT <<FK etudiant>> (RG11, RG12)
     note : SMALLINT CHECK (note BETWEEN 0 AND 20) (RG13, NULL tant que non rendue)
     commentaire : TEXT (NULL tant que non rendue)
@@ -82,7 +87,7 @@ session_cours  ||--o{ presence       : enregistre
 etudiant       ||--o{ presence       : marque
 session_cours  ||--o{ exercice       : reçoit
 etudiant       ||--o{ exercice       : dépose
-exercice       ||--o| relecture      : "est relu par (0..1)"
+exercice       ||--o{ relecture      : "est relu par (0..2, rangs distincts)"
 etudiant       ||--o{ relecture      : relit
 etudiant       ||--o| tentative_code : "compteur (0..1)"
 
@@ -91,6 +96,7 @@ note bottom of relecture
   RG11 (relecteur présent à la session) portent sur
   plusieurs tables : ils sont garantis par le service
   d'affectation et couverts par des tests, pas par
-  une contrainte CHECK.
+  une contrainte CHECK. Depuis V3 (étape 3), deux
+  relecteurs distincts sont affectés (RG10 réécrite).
 end note
 @enduml

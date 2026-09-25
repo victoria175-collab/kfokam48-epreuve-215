@@ -9,7 +9,7 @@ hide empty description
 
 state "DEPOSE\n(déposé, pas encore de relecteur)" as DEPOSE
 state "EN_ATTENTE_RELECTURE\n(relecteur affecté, note non rendue)" as EN_ATTENTE
-state "RELU\n(note et commentaire rendus)" as RELU
+state "RELU\n(les deux relectures sont rendues)" as RELU
 
 [*] --> DEPOSE : POST /api/exercices\n[session non clôturée, lien valide,\npas de dépôt antérieur] (RG6, RG7, RG8)
 
@@ -18,7 +18,8 @@ DEPOSE --> DEPOSE : PUT /api/exercices/{id}\nremplacement du lien (RG9)
 DEPOSE --> DEPOSE : dépôt ou nouvelle présence\n[aucun relecteur disponible] (Z2)
 
 EN_ATTENTE --> EN_ATTENTE : PUT /api/exercices/{id}\nremplacement du lien (RG9, Z5)
-EN_ATTENTE --> RELU : POST /api/relectures/{id}\n[note entière 0..20, session non clôturée]\n(RG13, RG15)
+EN_ATTENTE --> EN_ATTENTE : POST /api/relectures/{id}\npremière relecture rendue\n[note entière 0..20, session non clôturée]\n(RG13, RG15) : la note retenue reste\nprovisoire (RG23)
+EN_ATTENTE --> RELU : POST /api/relectures/{id}\nseconde relecture rendue\n[les deux relecteurs ont rendu]\n(RG10, RG23, mise à jour post-enveloppe)
 
 RELU --> [*]
 
@@ -30,8 +31,9 @@ note right of EN_ATTENTE
 end note
 
 note right of RELU
-  État final : la relecture est définitive (RG14, C1).
-  Le lien n'est plus modifiable (RG9).
+  État final : chaque relecture rendue est définitive
+  (RG14, C1) ; la note retenue est la moyenne des deux
+  (RG23, étape 3). Le lien n'est plus modifiable (RG9).
   Aucun retour arrière (RG20).
 end note
 
