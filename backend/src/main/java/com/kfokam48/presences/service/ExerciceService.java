@@ -13,7 +13,6 @@ import java.time.Clock;
 import java.time.OffsetDateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * EF3 : l'étudiant dépose le lien de son exercice. Règles : RG6 (un exercice
@@ -43,7 +42,12 @@ public class ExerciceService {
         this.clock = clock;
     }
 
-    @Transactional
+    /**
+     * Issue #33 (même logique que la présence) : pas de transaction englobante.
+     * L'exercice est enregistré immédiatement, puis l'affectation s'exécute
+     * dans sa propre transaction ; son échec (conflit simultané) ne doit pas
+     * annuler le dépôt, seulement laisser l'exercice DEPOSE (Z2).
+     */
     public Exercice deposer(long sessionId, long etudiantId, String lien) {
         SessionCours session = sessions.findById(sessionId)
                 .orElseThrow(() -> new RegleMetierException("SESSION_INCONNUE", HttpStatus.NOT_FOUND,
@@ -84,7 +88,12 @@ public class ExerciceService {
 
         // EF4 : si un relecteur est disponible, l'exercice passe tout de suite
         // en EN_ATTENTE_RELECTURE ; sinon il reste DEPOSE (Z2).
-        affectation.affecter(exercice);
+        try {
+            affectation.affecter(exercice);
+        } catch (RuntimeException e) {
+            // Conflit d'affectation simultanée : le dépôt survit (issue #33),
+            // l'exercice sera repris à la prochaine présence.
+        }
         return exercice;
     }
 

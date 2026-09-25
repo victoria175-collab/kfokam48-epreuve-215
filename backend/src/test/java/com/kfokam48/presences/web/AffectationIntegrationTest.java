@@ -12,6 +12,8 @@ import com.kfokam48.presences.domain.Exercice;
 import com.kfokam48.presences.domain.Relecture;
 import com.kfokam48.presences.repository.ExerciceRepository;
 import com.kfokam48.presences.repository.RelectureRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,7 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 
@@ -29,10 +30,13 @@ import javax.sql.DataSource;
  * l'affectation, avec reprise des exercices restes en attente de relecteur.
  * Jeu d'essai V2 : presents = Amina (1), Bertrand (2), Chantal (3) ;
  * l'exercice d'Amina est deja affecte a Bertrand (relecture ouverte).
+ *
+ * Issue #33 : la reprise d'affectation tourne apres le commit de la presence
+ * (transactions separees) — ce test n'est donc PAS transactionnel et isole
+ * lui-meme ses donnees.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 class AffectationIntegrationTest {
 
     private static final String CODE_DEMO = "KD2M4A";
@@ -49,15 +53,22 @@ class AffectationIntegrationTest {
     @Autowired
     private DataSource dataSource;
 
+    @BeforeEach
+    void restaurerLeJeuDeDemonstration() {
+        JeuDeDemonstration.restaurer(dataSource);
+    }
+
     @Test
     void depotSansRelecteurDisponibleResteDeposePuisSenAttenteApresUneNouvellePresence() throws Exception {
         JdbcTemplate jdbc = new JdbcTemplate(dataSource);
 
-        // Scenario Z2 isole : seule Chantal (3) reste presente, sans l'exercice
-        // de demonstration elle n'a aucun autre present -> aucun candidat.
+        // Scenario Z2 isole : seule Chantal (3) reste presente, aucun autre
+        // present -> aucun candidat au depot de Chantal.
         jdbc.update("DELETE FROM presence WHERE session_id = 1 AND etudiant_id IN (1, 2)");
         jdbc.update("DELETE FROM relecture WHERE exercice_id = 1");
         jdbc.update("UPDATE exercice SET statut = 'DEPOSE' WHERE id = 1");
+        jdbc.update("ALTER TABLE presence ALTER COLUMN id RESTART WITH 201");
+        jdbc.update("ALTER TABLE exercice ALTER COLUMN id RESTART WITH 201");
 
         MvcResult resultat = mockMvc.perform(post("/api/exercices")
                         .contentType(MediaType.APPLICATION_JSON)

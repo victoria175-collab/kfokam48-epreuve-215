@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -49,6 +50,18 @@ public class AffectationRelecteurService {
 
     /** Un candidat au tirage : un étudiant présent, avec sa charge de relectures dans la session. */
     public record Candidat(long etudiantId, long charge) {
+    }
+
+    /**
+     * Version transactionnelle indépendante, appelée par la reprise (issue #33)
+     * : tourne dans sa propre transaction quelle que soit la transaction
+     * appelante, pour qu'un échec d'affectation n'annule jamais une présence.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean affecterDansSaPropreTransaction(Long exerciceId) {
+        Exercice exercice = exercices.findById(exerciceId)
+                .orElseThrow(() -> new IllegalStateException("Exercice introuvable : " + exerciceId));
+        return affecter(exercice);
     }
 
     /**

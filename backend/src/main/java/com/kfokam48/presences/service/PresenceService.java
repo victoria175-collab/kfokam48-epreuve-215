@@ -26,22 +26,27 @@ public class PresenceService {
     private final SessionCoursRepository sessions;
     private final EtudiantRepository etudiants;
     private final PresenceRepository presences;
-    private final AffectationRelecteurService affectation;
+    private final RepriseAffectationService repriseAffectation;
     private final Clock clock;
 
     public PresenceService(SessionCoursRepository sessions,
                            EtudiantRepository etudiants,
                            PresenceRepository presences,
-                           AffectationRelecteurService affectation,
+                           RepriseAffectationService repriseAffectation,
                            Clock clock) {
         this.sessions = sessions;
         this.etudiants = etudiants;
         this.presences = presences;
-        this.affectation = affectation;
+        this.repriseAffectation = repriseAffectation;
         this.clock = clock;
     }
 
-    @Transactional
+    /**
+     * Issue #33 : pas de transaction englobante. La présence est enregistrée
+     * immédiatement (son INSERT est commité de façon autonome), puis la
+     * reprise des affectations s'exécute dans des transactions séparées : un
+     * échec d'affectation simultanée ne peut plus annuler une présence.
+     */
     public Presence marquer(String code, long etudiantId) {
         Etudiant etudiant = etudiants.findById(etudiantId)
                 .orElseThrow(() -> new RegleMetierException("ETUDIANT_INCONNU", HttpStatus.BAD_REQUEST,
@@ -84,8 +89,10 @@ public class PresenceService {
         presence = presences.save(presence);
 
         // Z2 : cette nouvelle présence peut débloquer l'affectation d'exercices
-        // restés DEPOSE faute de relecteur disponible.
-        affectation.retesterAffectations(session.getId());
+        // restés DEPOSE faute de relecteur disponible. Issue #33 : la reprise
+        // s'exécute à distance de cette transaction — un échec d'affectation
+        // simultanée n'annule jamais la présence du client.
+        repriseAffectation.reprendre(session.getId());
         return presence;
     }
 }
