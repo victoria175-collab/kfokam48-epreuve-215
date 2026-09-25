@@ -1,0 +1,40 @@
+# Trois services Docker separes : base de donnees, backend, frontend.
+# Chacun demarre par sa propre commande (voir README, regle 0.6 du sujet).
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: presences
+      POSTGRES_USER: presences
+      POSTGRES_PASSWORD: presences
+    volumes:
+      - donnees:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U presences -d presences"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: presences
+      DB_USER: presences
+      DB_PASSWORD: presences
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  donnees:
