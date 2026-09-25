@@ -28,15 +28,18 @@ public class ExerciceService {
     private final SessionCoursRepository sessions;
     private final EtudiantRepository etudiants;
     private final ExerciceRepository exercices;
+    private final AffectationRelecteurService affectation;
     private final Clock clock;
 
     public ExerciceService(SessionCoursRepository sessions,
                            EtudiantRepository etudiants,
                            ExerciceRepository exercices,
+                           AffectationRelecteurService affectation,
                            Clock clock) {
         this.sessions = sessions;
         this.etudiants = etudiants;
         this.exercices = exercices;
+        this.affectation = affectation;
         this.clock = clock;
     }
 
@@ -77,7 +80,12 @@ public class ExerciceService {
         exercice.setLien(lien);
         exercice.setStatut(Exercice.Statut.DEPOSE);
         exercice.setDeposeAt(OffsetDateTime.now(clock));
-        return exercices.save(exercice);
+        exercice = exercices.save(exercice);
+
+        // EF4 : si un relecteur est disponible, l'exercice passe tout de suite
+        // en EN_ATTENTE_RELECTURE ; sinon il reste DEPOSE (Z2).
+        affectation.affecter(exercice);
+        return exercice;
     }
 
     static void validerLien(String lien) {

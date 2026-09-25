@@ -26,15 +26,18 @@ public class PresenceService {
     private final SessionCoursRepository sessions;
     private final EtudiantRepository etudiants;
     private final PresenceRepository presences;
+    private final AffectationRelecteurService affectation;
     private final Clock clock;
 
     public PresenceService(SessionCoursRepository sessions,
                            EtudiantRepository etudiants,
                            PresenceRepository presences,
+                           AffectationRelecteurService affectation,
                            Clock clock) {
         this.sessions = sessions;
         this.etudiants = etudiants;
         this.presences = presences;
+        this.affectation = affectation;
         this.clock = clock;
     }
 
@@ -78,6 +81,11 @@ public class PresenceService {
         presence.setEtudiant(etudiant);
         presence.setSource(Presence.Source.ETUDIANT);
         presence.setMarqueeAt(maintenant);
-        return presences.save(presence);
+        presence = presences.save(presence);
+
+        // Z2 : cette nouvelle présence peut débloquer l'affectation d'exercices
+        // restés DEPOSE faute de relecteur disponible.
+        affectation.retesterAffectations(session.getId());
+        return presence;
     }
 }

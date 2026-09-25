@@ -32,13 +32,16 @@ class ExerciceIntegrationTest {
 
     @Test
     void depotNominalRepond201AvecStatutDepose() throws Exception {
+        // EF4 : des presents autres que l'auteur existent (V2), le depot est
+        // donc affecte immediatement et passe en EN_ATTENTE_RELECTURE ; sans
+        // aucun autre present, le statut aurait ete DEPOSE (issue #4).
         mockMvc.perform(post("/api/exercices")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"sessionId\":1,\"etudiantId\":4,"
                                 + "\"lien\":\"https://github.com/desire/exercice-1\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.statut").value("DEPOSE"));
+                .andExpect(jsonPath("$.statut").value("EN_ATTENTE_RELECTURE"));
     }
 
     @Test
