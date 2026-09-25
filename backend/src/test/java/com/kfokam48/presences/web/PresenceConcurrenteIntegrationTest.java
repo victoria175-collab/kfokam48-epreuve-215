@@ -51,31 +51,19 @@ class PresenceConcurrenteIntegrationTest {
 
     @BeforeEach
     void isolerLeScenario() {
+        JeuDeDemonstration.restaurer(dataSource);
         JdbcTemplate jdbc = new JdbcTemplate(dataSource);
         // Scénario du client : la session n'a plus aucune présence, mais un
         // exercice y est resté DEPOSE (déposé quand son auteur était seul).
         jdbc.update("DELETE FROM relecture");
-        jdbc.update("DELETE FROM exercice");
         jdbc.update("DELETE FROM presence");
-        jdbc.update("INSERT INTO exercice (id, session_id, etudiant_id, lien, statut, depose_at) "
-                + "VALUES (50, 1, 1, 'https://github.com/amina/en-attente', 'DEPOSE', CURRENT_TIMESTAMP)");
+        jdbc.update("UPDATE exercice SET statut = 'DEPOSE' WHERE id = 1");
+        jdbc.update("ALTER TABLE presence ALTER COLUMN id RESTART WITH 301");
     }
 
     @AfterEach
     void restaurerLesDonneesDeDemonstration() {
-        JdbcTemplate jdbc = new JdbcTemplate(dataSource);
-        jdbc.update("DELETE FROM relecture");
-        jdbc.update("DELETE FROM exercice WHERE id <> 1");
-        jdbc.update("DELETE FROM presence");
-        jdbc.update("UPDATE exercice SET statut = 'EN_ATTENTE_RELECTURE' WHERE id = 1");
-        jdbc.update("INSERT INTO exercice (id, session_id, etudiant_id, lien, statut, depose_at) "
-                + "VALUES (1, 1, 1, 'https://github.com/amina-ngb/exercice-1', 'EN_ATTENTE_RELECTURE', CURRENT_TIMESTAMP)");
-        jdbc.update("INSERT INTO presence (id, session_id, etudiant_id, source, marquee_at) VALUES "
-                + "(1, 1, 1, 'ETUDIANT', CURRENT_TIMESTAMP), "
-                + "(2, 1, 2, 'ETUDIANT', CURRENT_TIMESTAMP), "
-                + "(3, 1, 3, 'ETUDIANT', CURRENT_TIMESTAMP)");
-        jdbc.update("INSERT INTO relecture (id, exercice_id, relecteur_id, affectee_at, rendue_at) "
-                + "VALUES (1, 1, 2, CURRENT_TIMESTAMP, NULL)");
+        JeuDeDemonstration.restaurer(dataSource);
     }
 
     @Test
