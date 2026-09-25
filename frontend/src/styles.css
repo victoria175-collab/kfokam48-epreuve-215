@@ -187,6 +187,29 @@ th {
   padding: 0.5rem 0;
 }
 
+.texte-doux {
+  color: var(--texte-doux);
+  font-size: 0.92rem;
+}
+
+.exercice {
+  border-top: 1px solid var(--bordure);
+  padding: 0.6rem 0;
+}
+
+.exercice:first-of-type {
+  border-top: none;
+}
+
+.exercice-titre {
+  font-weight: 600;
+}
+
+.provisoire {
+  color: var(--avertissement);
+  font-size: 0.88rem;
+}
+
 @media (max-width: 640px) {
   .app {
     padding: 0.6rem;

@@ -87,6 +87,10 @@ export function rendreRelecture(id, note, commentaire, etudiantId) {
   });
 }
 
+export function listerMesExercices(etudiantId) {
+  return appeler(`/api/etudiants/${etudiantId}/exercices`);
+}
+
 export function tableauDeLaPromotion(promotionId) {
   return appeler(`/api/tableau?promotionId=${promotionId}`);
 }
