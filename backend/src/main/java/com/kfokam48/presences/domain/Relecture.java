@@ -35,8 +35,8 @@ public class Relecture {
     private Etudiant relecteur;
 
     /** RG13 : entier 0..20, NULL tant que la relecture n'est pas rendue. */
-    @Column(columnDefinition = "smallint")
-    private Integer note;
+    @Column
+    private Short note;
 
     @Column(length = 2000)
     private String commentaire;
@@ -59,7 +59,7 @@ public class Relecture {
         return relecteur;
     }
 
-    public Integer getNote() {
+    public Short getNote() {
         return note;
     }
 
@@ -83,7 +83,7 @@ public class Relecture {
         this.relecteur = relecteur;
     }
 
-    public void setNote(Integer note) {
+    public void setNote(Short note) {
         this.note = note;
     }
 
