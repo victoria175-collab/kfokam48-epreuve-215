@@ -9,4 +9,7 @@ public interface ExerciceRepository extends JpaRepository<Exercice, Long> {
     boolean existsBySessionIdAndAuteurId(Long sessionId, Long auteurId);
 
     List<Exercice> findBySessionIdAndStatut(Long sessionId, Exercice.Statut statut);
+
+    /** Exercices d'un auteur, par ordre de dépôt (EF12). */
+    List<Exercice> findByAuteurIdOrderById(Long auteurId);
 }
