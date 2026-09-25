@@ -34,3 +34,13 @@ VALUES (1, 1, 1, 'https://github.com/amina-ngb/exercice-1', 'EN_ATTENTE_RELECTUR
 
 INSERT INTO relecture (id, exercice_id, relecteur_id, affectee_at, rendue_at)
 VALUES (1, 1, 2, CURRENT_TIMESTAMP, NULL);
+
+-- Les identifiants ci-dessus etant explicites, les sequences d'identite
+-- repartent au-dela : sans cela, la prochaine session creee par l'API
+-- regenererait l'identifiant 1 deja pris (erreur 23505).
+ALTER TABLE promotion ALTER COLUMN id RESTART WITH 2;
+ALTER TABLE etudiant ALTER COLUMN id RESTART WITH 8;
+ALTER TABLE session_cours ALTER COLUMN id RESTART WITH 2;
+ALTER TABLE presence ALTER COLUMN id RESTART WITH 4;
+ALTER TABLE exercice ALTER COLUMN id RESTART WITH 2;
+ALTER TABLE relecture ALTER COLUMN id RESTART WITH 2;
