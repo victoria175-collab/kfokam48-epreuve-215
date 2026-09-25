@@ -38,11 +38,11 @@
 
 ## Étape 4 — Version finale
 
-**Fait :**
+**Fait :** CHANGELOG rédigé à partir de l'historique Git réel (analyse, v0.1, correctif #33/PR #35, évolution #34/PR #37). Backlog restant trié et documenté dans docs/BACKLOG.md : #12, #13, #14, #16 et #17 marquées hors périmètre avec la raison écrite, #15 livrée avec l'étape 3. README relu et testé depuis un clone vierge sur GitHub : les trois commandes Docker montent la base, le backend (migrations V1 à V3 et données de démonstration appliquées au démarrage) et le frontend (http://localhost:3001) ; vérifié par API que les données et la nouvelle réponse étudiant (note retenue, indicateur provisoire) sont servies. Descriptions mises à jour (deux relecteurs, note moyenne, provisoire). Journal trié et backlog documenté, jalon v1.0 posé.
 
-**Bloqué :**
+**Bloqué :** le port 8080 était occupé par la pile Docker du projet principal pendant le test du clone : backend et frontend du projet principal stoppés pendant la vérification, puis relancés. Un premier démarrage du conteneur backend du clone est resté sans réseau après l'échec de port ; réglé par un `docker compose down` puis un redémarrage propre.
 
-**IA :**
+**IA :** l'IA a rédigé le CHANGELOG, relu le README et conduit le test du clone vierge. Vérifié en rejouant les trois commandes du README dans un dossier neuf, en contrôlant les réponses API (promotions, étudiants, exercices d'un étudiant) et en relisant chaque entrée du CHANGELOG contre les messages de commit réels.
 
 ---
 

@@ -2,10 +2,11 @@
 
 Application web pour la direction de la formation KFOKAM48 : le formateur ouvre
 une session et affiche un code de présence, les étudiants présents le saisissent
-depuis leur téléphone, déposent le lien de leur exercice, et un relecteur est
-désigné au hasard parmi les présents. Le formateur consulte un tableau
-récapitulatif (présences, exercices déposés, moyenne des notes reçues,
-relectures encore dues).
+depuis leur téléphone, déposent le lien de leur exercice, et deux relecteurs
+distincts sont désignés au hasard parmi les présents ; la note retenue est la
+moyenne des deux, et une note seule s'affiche marquée comme provisoire. Le
+formateur consulte un tableau récapitulatif (présences, exercices déposés,
+moyenne des notes retenues, relectures encore dues).
 
 Le frontend est en React : son outillage (Vite) a permis de livrer trois écrans
 simples rapidement avec un build vérifiable en une commande.
