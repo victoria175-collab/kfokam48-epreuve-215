@@ -2,16 +2,19 @@ package com.kfokam48.presences.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Clock;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /**
  * B6 : test unitaire sur une règle métier réelle — le tirage du relecteur
- * (EF4, RG11, RG12, décision Z2).
+ * (EF4, RG11, RG12, décision Z2). La règle testée est pure : les dépôts,
+ * non utilisés ici, sont passés à null.
  */
 class AffectationRelecteurServiceTest {
 
-    private final AffectationRelecteurService service = new AffectationRelecteurService();
+    private final AffectationRelecteurService service =
+            new AffectationRelecteurService(null, null, null, null, Clock.systemUTC());
 
     @Test
     void aucunCandidatRenvoieNull() {
