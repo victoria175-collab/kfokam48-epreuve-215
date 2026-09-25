@@ -26,13 +26,13 @@
 
 ## Étape 3 — Enveloppe
 
-**Fait :**
+**Fait :** le jalon v0.1 étant poussé, l'enveloppe a été lue en entier avant de toucher au code : un bug (deux présences simultanées, une seule enregistrée) et un changement de besoin (deux relecteurs par exercice, note retenue = moyenne des deux, note seule affichée provisoire). Deux issues ouvertes avant toute correction (#33, #34). Le bug a été reproduit par un test qui échoue d'abord, puis corrigé dans une branche dédiée hotfix/presence-concurrente (PR #35, fusionnée sur main). L'évolution a suivi sur feature/deux-relecteurs : migration V3 additive (limite de deux relectures de rangs distincts remplaçant l'unicité stricte de V1, V1 et V2 jamais modifiées, données de démonstration préservées), contrat d'API mis à jour, service d'affectation porté à deux rangs, passage en RELU seulement après les deux rendus, note retenue (moyenne, indicateur provisoire) exposée par l'API et affichée à l'étudiant, tests d'intégration sur les deux rangs, la moyenne et le provisoire. Analyse remise à jour dans un commit dédié (C4, RG10 réécrite, RG23 ajoutée, EF4/EF6/EF7/EF12 précisées, D1 à D4 corrigés), backlog re-priorisé par écrit (docs/BACKLOG.md et commentaire sur #34).
 
-**Bloqué :**
+**Bloqué :** environ 40 minutes sur la migration V3 : la contrainte d'unicité posée en V1 l'a été sans nom explicite, donc générée, différente entre H2 et PostgreSQL ; découverte du nom par les métadonnées JDBC (information_schema) pour rester portable. La contrainte d'unicité stricte interdisait aussi de tester le provisoire avec une seule relecture : contourné par un exercice dont le second rang n'est affecté qu'à la présence suivante.
 
-**IA :**
+**IA :** l'IA a écrit le correctif, la migration, les tests et les écrans. Vérifié en relisant la migration contre D2 (l'index (exercice_id, rang) remplace bien l'ancien), en rejouant le test de reproduction avant/après correctif, en contrôlant chaque code HTTP du contrat contre les réponses réelles, et en faisant relire la moyenne : 2 décimales, moitié de la somme des notes entières, jamais recalculée côté front (F3).
 
-**Ce que j'ai sorti du périmètre pour absorber le changement, et pourquoi :**
+**Ce que j'ai sorti du périmètre pour absorber le changement, et pourquoi :** les Should/Could restants : #17 abandonnée en premier (Could), puis #12, #13, #14 et #16 sacrifiées — des fonctionnalités complètes qui ne tiennent pas dans le temps restant, alors que le correctif et l'évolution sont tous deux Must et prioritaires. #15 (EF12) a été maintenue et livrée avec #34 car le contrat de l'évolution en définissait déjà la réponse. Le détail est écrit dans docs/BACKLOG.md et en commentaire de l'issue #34 : un périmètre réduit et assumé vaut mieux qu'un périmètre annoncé et non tenu.
 
 ---
 
