@@ -11,9 +11,11 @@ import com.kfokam48.presences.repository.RelectureRepository;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,37 +67,51 @@ public class AffectationRelecteurService {
     }
 
     /**
-     * Tente d'affecter un relecteur à l'exercice. Renvoie true si l'exercice a
-     * un relecteur (créé ici ou déjà existant, RG10) et passe alors en
-     * EN_ATTENTE_RELECTURE ; false si aucun candidat n'est disponible (Z2,
-     * l'exercice reste DEPOSE).
+     * Tente d'affecter les relecteurs de l'exercice (issue #34 : deux pairs
+     * différents). Renvoie true si l'exercice porte au moins une relecture et
+     * passe alors en EN_ATTENTE_RELECTURE ; false s'il reste sans candidat
+     * (Z2, l'exercice reste DEPOSE). Rangs posés séparément : chaque rang est
+     * complété quand un candidat devient disponible (présence suivante).
      */
     @Transactional
     public boolean affecter(Exercice exercice) {
-        if (relectures.existsByExerciceId(exercice.getId())) {
-            return true; // RG10 : déjà affecté
+        long dejaAffectees = relectures.countByExerciceId(exercice.getId());
+        if (dejaAffectees >= 2) {
+            return true; // les deux relecteurs sont en place
         }
 
-        Long relecteurId = choisirRelecteur(
-                exercice.getAuteur().getId(), candidatsDeLaSession(exercice.getSession().getId()));
+        boolean auMoinsUne = dejaAffectees > 0;
+        Set<Long> dejaChoisis = new HashSet<>(relectures.findByExerciceId(exercice.getId()).stream()
+                .map(r -> r.getRelecteur().getId())
+                .toList());
 
-        if (relecteurId == null) {
-            return false; // Z2 : aucun relecteur disponible pour l'instant
+        for (short rang = 1; rang <= 2; rang++) {
+            if (rang <= dejaAffectees) {
+                continue;
+            }
+            List<Candidat> candidats = candidatsDeLaSession(exercice.getSession().getId()).stream()
+                    .filter(c -> !dejaChoisis.contains(c.etudiantId()))
+                    .toList();
+            Long relecteurId = choisirRelecteur(exercice.getAuteur().getId(), candidats);
+            if (relecteurId == null) {
+                break; // Z2 : pas de second candidat disponible pour l'instant
+            }
+            Etudiant relecteur = etudiants.findById(relecteurId).orElseThrow();
+            Relecture relecture = new Relecture();
+            relecture.setExercice(exercice);
+            relecture.setRelecteur(relecteur);
+            relecture.setRang(rang);
+            relecture.setAffecteeAt(OffsetDateTime.now(clock));
+            relectures.save(relecture);
+            dejaChoisis.add(relecteurId);
+            auMoinsUne = true;
         }
 
-        Etudiant relecteur = etudiants.findById(relecteurId)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Le relecteur tiré n'existe plus : " + relecteurId));
-
-        Relecture relecture = new Relecture();
-        relecture.setExercice(exercice);
-        relecture.setRelecteur(relecteur);
-        relecture.setAffecteeAt(OffsetDateTime.now(clock));
-        relectures.save(relecture);
-
-        exercice.setStatut(Exercice.Statut.EN_ATTENTE_RELECTURE);
-        exercices.save(exercice);
-        return true;
+        if (auMoinsUne) {
+            exercice.setStatut(Exercice.Statut.EN_ATTENTE_RELECTURE);
+            exercices.save(exercice);
+        }
+        return auMoinsUne;
     }
 
     /**

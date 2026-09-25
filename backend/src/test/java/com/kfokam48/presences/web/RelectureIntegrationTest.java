@@ -51,16 +51,18 @@ class RelectureIntegrationTest {
     }
 
     @Test
-    void renduNominalRepond200EtLExercicePasseEnReLu() throws Exception {
+    void renduNominalRepond200EtLExerciceAttendLaSecondeRelecture() throws Exception {
         mockMvc.perform(post("/api/relectures/1")
                         .header("X-Etudiant-Id", 2)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"note\":15,\"commentaire\":\"Travail solide.\"}"))
                 .andExpect(status().isOk());
 
-        // RG20 / D4 : l'exercice relu est definitivement en RELU.
+        // Issue #34 : avec un seul rendu sur deux, l'exercice reste en attente
+        // de la seconde relecture (il passera en RELU quand les deux auront rendu).
         Exercice exercice = exercices.findById(1L).orElseThrow();
-        org.junit.jupiter.api.Assertions.assertEquals(Exercice.Statut.RELU, exercice.getStatut());
+        org.junit.jupiter.api.Assertions.assertEquals(
+                Exercice.Statut.EN_ATTENTE_RELECTURE, exercice.getStatut());
     }
 
     @Test

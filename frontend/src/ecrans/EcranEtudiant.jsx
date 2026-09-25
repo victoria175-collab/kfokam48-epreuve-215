@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   deposerExercice,
   listerEtudiants,
+  listerMesExercices,
   listerPromotions,
   listerSessions,
   marquerPresence,
@@ -24,6 +25,8 @@ export default function EcranEtudiant() {
   const [chargement, setChargement] = useState(false)
   const [messagePresence, setMessagePresence] = useState(null)
   const [messageDepot, setMessageDepot] = useState(null)
+  const [mesExercices, setMesExercices] = useState(null)
+  const [erreurExercices, setErreurExercices] = useState(null)
 
   useEffect(() => {
     listerPromotions().then((liste) => {
@@ -33,6 +36,20 @@ export default function EcranEtudiant() {
       }
     })
   }, [])
+
+  // EF12 (issue #15), note retenue RG23 (issue #34) : la note et son
+  // indicateur provisoire viennent de l'API, le front les affiche tels quels.
+  function rafraichirMesExercices() {
+    if (!etudiantId) return
+    setErreurExercices(null)
+    listerMesExercices(Number(etudiantId))
+      .then(setMesExercices)
+      .catch((e) => setErreurExercices(e.message))
+  }
+
+  useEffect(() => {
+    rafraichirMesExercices()
+  }, [etudiantId])
 
   function changerPromotion(id) {
     setPromotionId(id)
@@ -180,6 +197,64 @@ export default function EcranEtudiant() {
           </p>
         )}
       </section>
+
+      <section className="carte">
+        <h2>Mes exercices et mes notes</h2>
+        <button type="button" onClick={rafraichirMesExercices} disabled={!etudiantId}>
+          Actualiser
+        </button>
+        {erreurExercices && <p className="message erreur">{erreurExercices}</p>}
+        {mesExercices !== null && mesExercices.length === 0 && (
+          <p className="texte-doux">Aucun exercice déposé pour le moment.</p>
+        )}
+        {(mesExercices || []).map((exercice) => (
+          <div className="exercice" key={exercice.id}>
+            <div className="exercice-titre">
+              {exercice.sessionTitre}{' '}
+              <span className={'badge ' + classeStatut(exercice.statut)}>
+                {libelleStatut(exercice.statut)}
+              </span>
+            </div>
+            {exercice.note !== null && exercice.note !== undefined ? (
+              <div>
+                Note retenue : <strong>{exercice.note}</strong>
+                {exercice.noteProvisoire && (
+                  <span className="provisoire"> provisoire — un second relecteur n'a pas encore rendu</span>
+                )}
+                {exercice.commentaire && <div className="texte-doux">« {exercice.commentaire} »</div>}
+              </div>
+            ) : (
+              <div className="texte-doux">Aucune note reçue pour le moment.</div>
+            )}
+          </div>
+        ))}
+      </section>
     </div>
   )
+}
+
+// Les libellés et couleurs restent de la présentation : les statuts et la
+// note viennent de l'API, aucune règle métier recalculée ici (F3).
+function libelleStatut(statut) {
+  switch (statut) {
+    case 'DEPOSE':
+      return 'en attente de relecteur'
+    case 'EN_ATTENTE_RELECTURE':
+      return 'en attente de relecture'
+    case 'RELU':
+      return 'relu'
+    default:
+      return statut
+  }
+}
+
+function classeStatut(statut) {
+  switch (statut) {
+    case 'RELU':
+      return 'ok'
+    case 'EN_ATTENTE_RELECTURE':
+      return 'attente'
+    default:
+      return ''
+  }
 }

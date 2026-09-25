@@ -31,7 +31,7 @@ rectangle "Application KFOKAM48" {
   usecase "Consulter ses relectures\nà rendre (EF5)" as UC5
   usecase "Rendre une note\net un commentaire (EF6)" as UC6
 
-  usecase "Affecter un relecteur\nau hasard (EF4)" as UC4
+  usecase "Affecter deux relecteurs\nau hasard (EF4, étape 3)" as UC4
   usecase "Bloquer après cinq\ncodes erronés (EF13)" as UC13
 }
 
@@ -63,6 +63,8 @@ note bottom of UC6
   RG12 : jamais sur son propre exercice
   RG13 : note entière de 0 à 20
   RG14 : définitive une fois rendue
+  RG23 (étape 3) : note retenue = moyenne
+des deux relectures rendues
 end note
 
 note bottom of UC2

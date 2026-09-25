@@ -56,7 +56,7 @@ else corps valide
           PR -> DB : INSERT presence
           S -> T : remettre le compteur à zéro (RG4)
           S -> AF : affecterExercicesEnAttente(session) (Z2, RG11)
-          AF -> DB : exercices DEPOSE de la session :\ntirage d'un relecteur présent, jamais l'auteur (RG12)
+          AF -> DB : exercices DEPOSE de la session :\ntirage de deux relecteurs présents, jamais l'auteur\n(RG12 ; rangs 1 puis 2, RG10 étape 3)
           S --> C : PresenceDto
           C --> A : 201 { id, sessionId, etudiantId, source: "ETUDIANT" }
         end

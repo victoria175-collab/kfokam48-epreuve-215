@@ -9,6 +9,8 @@ import com.kfokam48.presences.repository.ExerciceRepository;
 import com.kfokam48.presences.repository.SessionCoursRepository;
 import java.net.URI;
 import java.net.URISyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ExerciceService {
+
+    private static final Logger log = LoggerFactory.getLogger(ExerciceService.class);
 
     private final SessionCoursRepository sessions;
     private final EtudiantRepository etudiants;
@@ -93,6 +97,8 @@ public class ExerciceService {
         } catch (RuntimeException e) {
             // Conflit d'affectation simultanée : le dépôt survit (issue #33),
             // l'exercice sera repris à la prochaine présence.
+            log.warn("Affectation reportée pour l'exercice {} : {}",
+                    exercice.getId(), e.toString());
         }
         return exercice;
     }

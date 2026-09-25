@@ -2,6 +2,8 @@ package com.kfokam48.presences.service;
 
 import com.kfokam48.presences.domain.Exercice;
 import com.kfokam48.presences.repository.ExerciceRepository;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -32,13 +34,19 @@ public class RepriseAffectationService {
      * présence (issue #33). Chaque affectation s'exécute dans sa propre
      * transaction et voit la présence commitée. Aucune exception ne remonte :
      * un échec d'affectation n'est jamais une raison d'annuler une présence.
+     * Issue #34 : la reprise couvre les exercices sans relecteur (DEPOSE) ET
+     * ceux qui n'ont qu'un seul des deux relecteurs (EN_ATTENTE_RELECTURE).
      */
     public void reprendre(Long sessionId) {
-        for (Exercice exercice : exercices.findBySessionIdAndStatut(sessionId, Exercice.Statut.DEPOSE)) {
+        List<Exercice> aReprendre = new ArrayList<>();
+        aReprendre.addAll(exercices.findBySessionIdAndStatut(sessionId, Exercice.Statut.DEPOSE));
+        aReprendre.addAll(exercices.findBySessionIdAndStatut(
+                sessionId, Exercice.Statut.EN_ATTENTE_RELECTURE));
+        for (Exercice exercice : aReprendre) {
             try {
                 affectation.affecterDansSaPropreTransaction(exercice.getId());
             } catch (RuntimeException e) {
-                // Conflit d'affectation simultanée : l'exercice reste DEPOSE,
+                // Conflit d'affectation simultanée : l'exercice reste en l'état,
                 // il sera repris à la prochaine présence. La présence est sauve.
                 log.info("Affectation retentee plus tard pour l'exercice {} : {}",
                         exercice.getId(), e.getMessage());

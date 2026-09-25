@@ -86,11 +86,19 @@ public class RelectureService {
         relecture.setNote(note.shortValue());
         relecture.setCommentaire(commentaire);
         relecture.setRendueAt(OffsetDateTime.now(clock));
+        Relecture rendue = relectures.save(relecture);
 
+        // Issue #34 : l'exercice passe en RELU quand les deux relecteurs ont
+        // rendu ; tant qu'un seul a rendu, sa note reste provisoire.
         Exercice exercice = relecture.getExercice();
-        exercice.setStatut(Exercice.Statut.RELU);
-        exercices.save(exercice);
+        long rendues = relectures.findByExerciceId(exercice.getId()).stream()
+                .filter(r -> r.getRendueAt() != null)
+                .count();
+        if (rendues >= 2) {
+            exercice.setStatut(Exercice.Statut.RELU);
+            exercices.save(exercice);
+        }
 
-        return relectures.save(relecture);
+        return rendue;
     }
 }
