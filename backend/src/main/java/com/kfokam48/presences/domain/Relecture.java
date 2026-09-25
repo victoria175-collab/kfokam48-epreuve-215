@@ -13,10 +13,12 @@ import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
 
 /**
- * Relecture d'un exercice par un étudiant présent (RG10 : exactement une par
- * exercice). La note (RG13, entier 0..20) et le commentaire restent NULL tant
- * que la relecture n'est pas rendue ; rendue_at pose la fin du cycle (RG14 :
- * une relecture rendue est définitive).
+ * Relecture d'un exercice par un étudiant présent. Depuis V3 (issue #34,
+ * enveloppe étape 3) : chaque exercice est relu par deux pairs différents,
+ * identifiés par rang (1 et 2). La note (RG13, entier 0..20) et le commentaire
+ * restent NULL tant que la relecture n'est pas rendue ; rendue_at pose la fin
+ * du cycle (RG14 : une relecture rendue est définitive). L'exercice passe en
+ * RELU quand les deux rangs sont rendus.
  */
 @Entity
 @Table(name = "relecture")
@@ -43,6 +45,10 @@ public class Relecture {
 
     @Column(name = "affectee_at", nullable = false)
     private OffsetDateTime affecteeAt;
+
+    /** Rang de l'affectation : 1 ou 2 (issue #34, contrainte uq_relecture_exercice_rang). */
+    @Column(nullable = false)
+    private Short rang;
 
     @Column(name = "rendue_at")
     private OffsetDateTime rendueAt;
@@ -73,6 +79,14 @@ public class Relecture {
 
     public OffsetDateTime getRendueAt() {
         return rendueAt;
+    }
+
+    public Short getRang() {
+        return rang;
+    }
+
+    public void setRang(Short rang) {
+        this.rang = rang;
     }
 
     public void setExercice(Exercice exercice) {
