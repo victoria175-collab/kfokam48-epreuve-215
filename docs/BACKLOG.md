@@ -4,6 +4,8 @@ Ce document est l'instantané du Product Backlog contenu dans le jalon `[JALON] 
 
 Les issues Must forment le Sprint 1 (étape 2, version v0.1). Les Should et Could restent en backlog pour le sprint 2 (étape 4) et seront re-priorisées par écrit après l'ouverture de l'enveloppe (étape 3). La Definition of Done appliquée à chaque story est celle de la section 10 du cahier des charges.
 
+**Re-priorisation post-enveloppe (étape 3) :** elle est écrite en fin de document. Le bug signalé par le client (#33) et le nouveau Must (#34) ont été traités en priorité, dans deux branches et deux pull requests séparées, au prix du sacrifice des issues #12, #13, #14, #16 et #17 ; la story #15 (EF12) est livrée dans la foulée de #34.
+
 ---
 
 ## Vue d'ensemble
@@ -21,12 +23,14 @@ Les issues Must forment le Sprint 1 (étape 2, version v0.1). Les Should et Coul
 | [#9](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/9) | Gestion centralisée des erreurs au format imposé | Must | 1 | ENF4, B2, B4 |
 | [#10](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/10) | Versionner le schéma par Flyway et charger les données de démonstration | Must | 1 | ENF6, ENF7, B5, Z4 |
 | [#11](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/11) | Tests exécutables sur un poste vierge | Must | 1 | B6, ENF6 |
-| [#12](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/12) | Ajouter une présence à la main, signalée « ajouté par le formateur » | Should | 2 | EF9 (RG5, RG3) |
-| [#13](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/13) | Clôturer une session, définitivement | Should | 2 | EF10 (RG15, RG19) |
-| [#14](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/14) | Remplacer le lien de son exercice | Should | 2 | EF11 (RG9) |
-| [#15](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/15) | Consulter sa note et son commentaire, sans le nom du relecteur | Should | 2 | EF12 (RG16, Z14) |
-| [#16](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/16) | Bloquer un étudiant après cinq codes erronés | Should | 2 | EF13 (RG4, Z6) |
-| [#17](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/17) | Voir la présence de chaque étudiant à chaque session | Could | 2 | EF14 (C2) |
+| [#12](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/12) | Ajouter une présence à la main, signalée « ajouté par le formateur » | Should | hors périmètre (étape 3) | EF9 (RG5, RG3) |
+| [#13](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/13) | Clôturer une session, définitivement | Should | hors périmètre (étape 3) | EF10 (RG15, RG19) |
+| [#14](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/14) | Remplacer le lien de son exercice | Should | hors périmètre (étape 3) | EF11 (RG9) |
+| [#15](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/15) | Consulter sa note et son commentaire, sans le nom du relecteur | Should | 3 (livrée avec #34) | EF12 (RG16, Z14, RG23) |
+| [#16](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/16) | Bloquer un étudiant après cinq codes erronés | Should | hors périmètre (étape 3) | EF13 (RG4, Z6) |
+| [#17](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/17) | Voir la présence de chaque étudiant à chaque session | Could | hors périmètre (étape 3) | EF14 (C2) |
+| [#33](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/33) | Bug : deux présences simultanées, une seule enregistrée | Must | 3 (étape 3) | Correctif RG3, test de reproduction |
+| [#34](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/34) | Chaque exercice est relu par deux pairs, note retenue = moyenne des deux | Must | 3 (étape 3) | RG10 réécrite, RG23, C4, V3 |
 | [#18](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/18) | Écran formateur : ouvrir une session et voir le tableau | Must | 1 | F2, F1, F3 |
 | [#19](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/19) | Écran étudiant : marquer sa présence et déposer son exercice | Must | 1 | F2, F3, ENF1 |
 | [#20](https://github.com/victoria175-collab/kfokam48-epreuve-215/issues/20) | Écran relecteur : consulter et rendre une relecture | Must | 1 | F2, F3 |
@@ -222,4 +226,22 @@ Source : Q16, contradiction C2.
 
 ## Re-priorisation après l'étape 3
 
-Conformément à la démarche (section 10 du cahier des charges), après l'ouverture de l'enveloppe : une issue pour le bug, une pour l'évolution de besoin, puis une re-priorisation écrite de ce backlog séparant le correctif de la nouvelle fonctionnalité. Le présent fichier sera alors mis à jour dans un commit dédié.
+L'enveloppe a apporté deux sujets nouveaux, tous deux Must et prioritaires sur tout le reste :
+
+**1. Le correctif (issue #33, branche hotfix/presence-concurrente, PR #35) — livré.**
+Deux présences saisies simultanément pouvaient n'en enregistrer qu'une. Il a été traité avant l'évolution : un service indisponible fait perdre des présences réelles, alors que l'évolution attend une heure. Reproduction par un test qui échoue d'abord, correctif ensuite, dans une branche dédiée, séparée de l'évolution.
+
+**2. L'évolution de besoin (issue #34, branche feature/deux-relecteurs, PR dédiée) — livrée.**
+Deux relecteurs distincts par exercice, note retenue = moyenne des deux, une note seule affichée provisoire. Migration V3 additive (V1 et V2 inchangées), contrat mis à jour, analyse remise à jour dans un commit dédié, tests d'intégration couvrant les deux rangs, la moyenne et le provisoire.
+
+**Ce qui sort du périmètre, et pourquoi.** Le nouveau Must arrive tard dans la journée. Pour l'absorber sans mettre en risque l'existant, les stories Should et Could restantes sont sacrifiées :
+
+- **#12** (présence ajoutée à la main, EF9) — sacrifiée : l'ouverture du périmètre RG3 par le correctif rendrait sa reprise tentante, mais elle reste une fonctionnalité complète (écran, source FORMATEUR, mention visible) qui ne tient pas dans le temps restant.
+- **#13** (clôture de session, EF10) — sacrifiée : RG15 est déjà garantie par construction (aucune relecture après clôture possible tant que la clôture elle-même n'existe pas) ; l'absence de l'écran ne crée pas d'incohérence.
+- **#14** (remplacement du lien, EF11) — sacrifiée : RG9 reste codée côté API (409 LIEN_NON_MODIFIABLE couvert par les tests), seule l'opération est absente.
+- **#16** (blocage après cinq codes erronés, EF13) — sacrifiée : RG4 décrite dans l'analyse, non développée ; l'application reste cohérente sans elle (le tableau et la présence ne dépendent pas du compteur).
+- **#17** (détail des présences par session, EF14, Could) — abandonnée en premier, comme prévu à la section 10 du cahier des charges.
+
+**Ce qui est maintenu :** la story **#15** (EF12), Should, est livrée dans la foulée de #34 — le contrat de l'évolution définit précisément la réponse attendue par l'étudiant (note retenue, indicateur provisoire, commentaires), la livrer ne coûtait qu'un contrôleur, un service et un écran déjà en place.
+
+Un périmètre réduit et assumé vaut mieux qu'un périmètre annoncé et non tenu : le reste du temps disponible est consacré à la solidité de l'analyse, à la propreté de l'historique et à la vérification du démarrage depuis un clone vierge (étape 4).
